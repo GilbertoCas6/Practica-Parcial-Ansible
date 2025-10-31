@@ -16,7 +16,7 @@ node1 → http://localhost:8080
 node2 → http://localhost:8081
 
 Estructura
-.
+
 ├─ ansible.cfg
 ├─ docker-compose.yml
 ├─ Dockerfile
@@ -26,7 +26,7 @@ Estructura
    └─ files/
       └─ siteindex.html
 
-Requisitos
+   Requisitos
 
 Docker Desktop (con Compose)
 
@@ -36,6 +36,7 @@ Git Bash o CMD/PowerShell
 
 Cómo ejecutar
 Opción A: CMD/PowerShell (Windows)
+
 REM 1) Levantar nodos
 docker compose up -d --build
 
@@ -46,7 +47,6 @@ docker run --rm --network ansible-docker-lab_default ^
   -w /ansible cytopia/ansible:latest ^
   sh -lc "apk add --no-cache sshpass openssh-client >nul && ansible-playbook -i inventory.ini playbooks/web.yml -vv"
 
-Opción B: Git Bash (Windows)
 # 1) Levantar
 docker compose up -d --build
 
@@ -57,23 +57,21 @@ docker run --rm --network ansible-docker-lab_default \
   -w /ansible cytopia/ansible:latest \
   sh -lc "apk add --no-cache sshpass openssh-client >/dev/null && ansible-playbook -i inventory.ini playbooks/web.yml -vv"
 
-Verificación rápida
-# Desde navegador:
+# Navegador:
 # http://localhost:8080
 # http://localhost:8081
 
-# O con curl (CMD/PowerShell o Git Bash):
-curl http://localhost:8080
-curl http://localhost:8081
+# O con curl dentro de un contenedor:
+docker run --rm --network ansible-docker-lab_default curlimages/curl -s -o NUL -w "node1 -> %{http_code}\n" http://node1
+docker run --rm --network ansible-docker-lab_default curlimages/curl -s -o NUL -w "node2 -> %{http_code}\n" http://node2
 
 Limpieza
 docker compose down -v
 
 Notas
 
-El HTML de siteindex.html está en UTF-8 para evitar caracteres raros (ej. Â).
+El HTML siteindex.html está en UTF-8 para evitar caracteres raros tipo Â.
 
-Si usas Git Bash y ves the input device is not a TTY, ejecuta los comandos desde CMD/PowerShell o usa las instrucciones de la Opción B.
+Si en Git Bash ves the input device is not a TTY, usa CMD/PowerShell o la Opción B.
 
-El warning de “world writable dir” al montar el repo es esperado en este laboratorio y no afecta la ejecución.
-
+El aviso “world writable dir” al montar el repo es normal en este lab y no afecta.
