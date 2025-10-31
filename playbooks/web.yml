@@ -1,0 +1,38 @@
+- name: Instalar Nginx y desplegar página
+  hosts: all
+  become: true
+
+  vars:
+    web_pkg: nginx
+    web_root: /var/www/html
+
+  tasks:
+    - name: Actualizar caché de apt (solo Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Instalar servidor web
+      package:
+        name: "{{ web_pkg }}"
+        state: present
+
+    - name: Subir index.html desde el repo
+      copy:
+        src: siteindex.html          # ← Toma el archivo de playbooks/files/
+        dest: "{{ web_root }}/index.html"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Asegurar Nginx corriendo (si hay systemd)
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+      when: ansible_service_mgr != "unknown"
+
+    - name: Arrancar Nginx si NO hay systemd (típico en contenedores)
+      command: nginx
+      when: ansible_service_mgr == "unknown"
+      changed_when: false
